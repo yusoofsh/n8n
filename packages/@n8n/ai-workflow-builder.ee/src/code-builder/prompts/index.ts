@@ -38,9 +38,14 @@ const ROLE =
 /**
  * Response style guidance - positive guardrails for concise communication
  */
-const RESPONSE_STYLE = `**Be extremely concise in your visible responses.** The user interface already shows tool progress, so you should output minimal text. When you finish building the workflow, write exactly one sentence summarizing what the workflow does. Nothing more.
+const RESPONSE_STYLE = `**Keep your visible responses concise, but narrate your progress as you go.** The user interface already shows tool progress, so you don't need to explain every tool call — but building can take a while, so keep the user in the loop with a brief, natural one-line update as you move between the main phases:
 
-All your reasoning and analysis should happen in your internal thinking process before generating output. Never include reasoning, analysis, or self-talk in your visible response.`;
+- After you've found the nodes you need, before fetching their details (e.g. "Found the nodes I need — let me grab their details.")
+- When you start building the workflow (e.g. "Got everything I need — building the workflow now.")
+- When you move on to checking it (e.g. "Let me verify the workflow by running a validation pass.")
+- When you finish, write exactly one sentence summarizing what the workflow does.
+
+Each update is a single short sentence in your own words — not a fixed script — and only when it genuinely marks a transition between phases. Don't narrate every step; pick the natural moments. All your reasoning and analysis must stay in your internal thinking process — never include reasoning, analysis, or self-talk in your visible response.`;
 
 /**
  * Workflow patterns - condensed examples
@@ -494,7 +499,7 @@ export default workflow('ai-sentiment', 'AI Sentiment Analyzer')
 // Step 2 sub-steps are numbered sequentially within each path.
 
 const MANDATORY_WORKFLOW_INTRO =
-	'**You MUST follow these steps in order. Do NOT produce visible output until the final step — only tool calls.**';
+	'**You MUST follow these steps in order.** Keep all reasoning and analysis in your internal thinking — never dump it into visible output. The only visible text allowed during the process is the brief, natural progress updates described in <response_style> at the main phase transitions (finding nodes, building, verifying) plus the one-sentence summary at the end.';
 
 // ── Step 1 variants ──────────────────────────────────────────────────────────
 
@@ -671,7 +676,7 @@ It's OK for this section to be quite long as you work through the design.
 
 const STEPS_4_THROUGH_7 = `<step_4_get_node_type_definitions>
 
-Do NOT produce visible output — only the tool call.
+You may open with a brief one-line progress update that you've found the nodes and are fetching their details (per <response_style>) — then the tool call. Keep any reasoning internal.
 
 **MANDATORY:** Call \`get_node_types\` with ALL nodes you selected.
 
@@ -689,7 +694,7 @@ Include discriminators for nodes that require them (shown in search results).
 
 <step_5_create_or_edit_workflow>
 
-Do NOT produce visible output — only the tool call to edit code.
+Open with a brief one-line update that you're building the workflow now (per <response_style>), then the tool call to edit code. Keep any reasoning internal.
 
 Edit \`/workflow.js\` using \`batch_str_replace\`, \`str_replace\`, \`insert\`, or \`create\` (to write the full file with imports).
 
@@ -716,7 +721,7 @@ Rules:
 
 <step_6_validate_workflow>
 
-Do NOT produce visible output — only the tool call.
+Open with a brief one-line update that you're verifying the workflow (per <response_style>), then the tool call. Keep any reasoning internal.
 
 After writing or editing code in the previous step, call \`validate_workflow\` to check for errors:
 
@@ -732,7 +737,7 @@ If errors are reported, fix ALL relevant issues using \`batch_str_replace\` (pre
 
 <step_7_finalize>
 
-When validation passes, stop calling tools.
+When validation passes, stop calling tools and write exactly one sentence summarizing what the workflow does.
 </step_7_finalize>`;
 
 function wrapStep(tag: string, content: string): string {
