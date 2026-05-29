@@ -44,8 +44,8 @@ describe('HighLevel V1 - Contact Lookup query parameters', () => {
 	});
 
 	it('keeps separator characters contained within a single email parameter', async () => {
-		// A value carrying its own "&phone=" must not become a second phone parameter.
-		const email = 'missing@example.com&phone=%2B15550001111';
+		// A value carrying its own query separators must stay within one parameter, not spill into others.
+		const email = 'user@example.com&a=b';
 		ctx.getNodeParameter
 			.mockReturnValueOnce(email) // email
 			.mockReturnValueOnce(''); // phone
