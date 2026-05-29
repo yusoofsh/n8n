@@ -100,7 +100,7 @@ export const contactOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/contacts/lookup?email={{$parameter.email}}&phone={{$parameter.phone}}',
+						url: '=/contacts/lookup?email={{ encodeURIComponent($parameter.email) }}&phone={{ encodeURIComponent($parameter.phone) }}',
 					},
 					output: {
 						postReceive: [
