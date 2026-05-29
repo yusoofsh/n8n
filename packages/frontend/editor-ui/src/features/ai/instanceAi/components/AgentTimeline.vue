@@ -10,6 +10,7 @@ import { useI18n } from '@n8n/i18n';
 import { computed } from 'vue';
 import {
 	extractArtifacts,
+	extractArtifactsFromToolCall,
 	HIDDEN_TOOLS,
 	isLegacyBuilderToolCall,
 	type ArtifactInfo,
@@ -328,6 +329,21 @@ function mapTaskItemsToPlannedTasks(tasks?: TaskList): PlannedTaskArg[] | undefi
 				<ToolCallStep v-else :tool-call="toolCallsById[entry.toolCallId]" :show-connector="true">
 					<slot name="after-tool-call" :tool-call="toolCallsById[entry.toolCallId]" />
 				</ToolCallStep>
+
+				<!-- Artifact produced by this tool call — shown as soon as it completes.
+				     Skipped in the grouped/completed view (artifacts render per response group). -->
+				<template v-if="!props.visibleEntries">
+					<ArtifactCard
+						v-for="artifact in extractArtifactsFromToolCall(toolCallsById[entry.toolCallId])"
+						:key="artifact.resourceId"
+						:type="artifact.type"
+						:name="resolveArtifactName(artifact)"
+						:resource-id="artifact.resourceId"
+						:project-id="artifact.projectId"
+						:archived="thread.producedArtifacts.get(artifact.resourceId)?.archived"
+						:metadata="formatArtifactMetadata(artifact)"
+					/>
+				</template>
 			</template>
 
 			<!-- Child agent — flat section in chronological order. -->

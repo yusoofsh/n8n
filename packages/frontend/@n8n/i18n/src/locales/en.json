@@ -5828,6 +5828,7 @@
 	"instanceAi.tools.executions.stop": "Stopping execution",
 	"instanceAi.tools.credentials": "Credentials",
 	"instanceAi.tools.credentials.list": "Checking credentials",
+	"instanceAi.tools.credentials.list.withType": "Checking credentials: {credentialNames}",
 	"instanceAi.tools.credentials.get": "Reading credential",
 	"instanceAi.tools.credentials.delete": "Deleting credential",
 	"instanceAi.tools.credentials.delete.imperative": "delete credential",

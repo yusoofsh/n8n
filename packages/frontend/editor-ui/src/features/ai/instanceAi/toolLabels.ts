@@ -107,21 +107,41 @@ function getNodeTypeId(value: unknown): string | undefined {
 	return undefined;
 }
 
+function humanizeDiscriminator(value: string): string {
+	return value
+		.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+		.replace(/[-_]+/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.toLowerCase();
+}
+
+function getSchemaNodeLabel(value: unknown): string | undefined {
+	const nodeTypeId = getNodeTypeId(value);
+	if (!nodeTypeId) return undefined;
+
+	const base = humanizeNodeTypeLabel(nodeTypeId);
+	if (!isRecord(value)) return base;
+
+	// Disambiguate operation-specific lookups (same node, different resource/operation).
+	const details = [value.resource, value.operation]
+		.filter((detail): detail is string => typeof detail === 'string' && detail.length > 0)
+		.map(humanizeDiscriminator);
+
+	return details.length > 0 ? `${base} (${details.join(' · ')})` : base;
+}
+
 function getSchemaNodeLabels(args?: Record<string, unknown>): string[] {
 	const nodeList = Array.isArray(args?.nodeTypes)
 		? args.nodeTypes
 		: Array.isArray(args?.nodeIds)
 			? args.nodeIds
 			: undefined;
-	const nodeTypeIds = nodeList
-		? nodeList.map(getNodeTypeId)
-		: [args?.nodeType, args?.nodeId].map(getNodeTypeId);
+	const nodeRequests = nodeList ?? [args];
 
 	return Array.from(
 		new Set(
-			nodeTypeIds
-				.filter((nodeTypeId): nodeTypeId is string => Boolean(nodeTypeId))
-				.map(humanizeNodeTypeLabel),
+			nodeRequests.map(getSchemaNodeLabel).filter((label): label is string => Boolean(label)),
 		),
 	);
 }
@@ -149,6 +169,30 @@ function getNodeSchemaToolLabel(
 			: 'instanceAi.tools.nodeSchema.withNodes',
 		{ interpolate: { nodeNames: nodeLabels.join(', ') } },
 	);
+}
+
+const CREDENTIAL_TYPE_SUFFIX = /(?:OAuth2Api|OAuth1Api|OAuth2|OAuth1|Api|Auth)$/;
+
+function humanizeCredentialTypeLabel(credentialType: string): string {
+	const stripped = credentialType.replace(CREDENTIAL_TYPE_SUFFIX, '');
+	return humanizeNodeTypeLabel(stripped || credentialType);
+}
+
+function getCredentialsToolLabel(
+	i18n: I18n,
+	toolName: string,
+	args?: Record<string, unknown>,
+): string | undefined {
+	if (toolName !== 'credentials' || args?.action !== 'list') return undefined;
+
+	const type = typeof args.type === 'string' ? args.type : undefined;
+	const name = typeof args.name === 'string' ? args.name : undefined;
+	const label = type ? humanizeCredentialTypeLabel(type) : name;
+	if (!label) return undefined;
+
+	return i18n.baseText('instanceAi.tools.credentials.list.withType', {
+		interpolate: { credentialNames: label },
+	});
 }
 
 function getSkillFileLabel(i18n: I18n, filePath: string): string | undefined {
@@ -247,6 +291,9 @@ export function useToolLabel() {
 
 		const nodeSchemaToolLabel = getNodeSchemaToolLabel(i18n, toolName, args);
 		if (nodeSchemaToolLabel) return nodeSchemaToolLabel;
+
+		const credentialsToolLabel = getCredentialsToolLabel(i18n, toolName, args);
+		if (credentialsToolLabel) return credentialsToolLabel;
 
 		const action = typeof args?.action === 'string' ? args.action : undefined;
 		if (action) {
