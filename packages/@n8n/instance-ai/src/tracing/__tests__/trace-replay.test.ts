@@ -324,6 +324,35 @@ describe('TraceIndex', () => {
 		expect(index.next('orchestrator', 'run-workflow').kind).toBe('tool-resume');
 	});
 
+	it('should replay an adjacent suspension before the matching tool output', () => {
+		const events: TraceEvent[] = [
+			{
+				...makeToolCall(1, 'orchestrator', 'workflows'),
+				toolCallId: 'toolu-workflow-save',
+				input: { action: 'create', name: 'Recorded workflow' },
+				output: { success: true, workflowId: 'recorded-workflow-id' },
+			},
+			{
+				...makeSuspend(2, 'orchestrator', 'workflows'),
+				toolCallId: 'toolu-workflow-save',
+				input: { action: 'create', name: 'Recorded workflow' },
+				suspendPayload: { message: 'Create workflow Recorded workflow' },
+			},
+		];
+
+		const index = new TraceIndex(events);
+
+		expect(
+			index.nextMatchingForReplay('orchestrator', 'workflows', { preferSuspend: true })?.kind,
+		).toBe('tool-suspend');
+		const resumedEvent = index.nextMatchingForReplay('orchestrator', 'workflows');
+		expect(resumedEvent?.kind).toBe('tool-call');
+		expect(resumedEvent?.output).toEqual({
+			success: true,
+			workflowId: 'recorded-workflow-id',
+		});
+	});
+
 	it('should filter out header events', () => {
 		const events: TraceEvent[] = [
 			{ kind: 'header', version: 1, testName: 'test', recordedAt: '' },

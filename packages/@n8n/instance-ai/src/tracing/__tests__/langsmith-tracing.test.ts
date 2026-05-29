@@ -1603,6 +1603,104 @@ describe('createInstanceAiTraceContext', () => {
 		expect(toolCalls).toEqual([{ action: 'list' }]);
 	});
 
+	it('executes a tool on resume after replaying an adjacent recorded suspension', async () => {
+		const tracing = createTraceReplayOnlyContext();
+		tracing.replayMode = 'replay';
+		tracing.traceIndex = new TraceIndex([
+			{ kind: 'header', version: 1, testName: 'replay-adjacent-suspend', recordedAt: '' },
+			{
+				kind: 'tool-call',
+				stepId: 1,
+				agentRole: 'orchestrator',
+				toolName: 'workflows',
+				toolCallId: 'toolu-workflow-save',
+				input: { action: 'create', name: 'Recorded workflow' },
+				output: { success: true, workflowId: 'recorded-workflow-id' },
+			},
+			{
+				kind: 'tool-suspend',
+				stepId: 2,
+				agentRole: 'orchestrator',
+				toolName: 'workflows',
+				toolCallId: 'toolu-workflow-save',
+				input: { action: 'create', name: 'Recorded workflow' },
+				suspendPayload: {
+					requestId: 'request-1',
+					inputType: 'workflow',
+					message: 'Create workflow Recorded workflow',
+				},
+			},
+		]);
+		tracing.idRemapper = new IdRemapper();
+
+		const toolCalls: unknown[] = [];
+		const workflowsTool: BuiltTool = {
+			name: 'workflows',
+			description: 'Manages workflows.',
+			suspendSchema: {},
+			handler: async (input, context) => {
+				toolCalls.push(input);
+				const inputRecord = input as Record<string, unknown>;
+				if (inputRecord.action === 'create') {
+					if (!('resumeData' in context) || context.resumeData === undefined) {
+						throw new Error('Expected recorded suspension to be replayed before live execution');
+					}
+
+					return await Promise.resolve({
+						success: true,
+						workflowId: 'current-workflow-id',
+					});
+				}
+
+				return await Promise.resolve({ workflowId: inputRecord.workflowId });
+			},
+		};
+
+		const wrappedTools = tracing.wrapTools(createToolRegistry([['workflows', workflowsTool]]), {
+			agentRole: 'orchestrator',
+		});
+		const wrappedTool = wrappedTools.get('workflows');
+		if (!isExecutableTool(wrappedTool)) {
+			throw new Error('Wrapped workflows tool is not executable');
+		}
+
+		const createInput = { action: 'create', name: 'Recorded workflow' };
+		const suspendedResult = await executeTool(wrappedTool, createInput, {
+			resumeData: undefined,
+			suspend: async (payload: unknown): Promise<never> =>
+				await Promise.resolve({ pending: true, payload } as never),
+		});
+
+		expect(suspendedResult).toEqual({
+			pending: true,
+			payload: {
+				requestId: 'request-1',
+				inputType: 'workflow',
+				message: 'Create workflow Recorded workflow',
+			},
+		});
+		expect(toolCalls).toEqual([]);
+
+		const resumedResult = await executeTool(wrappedTool, createInput, {
+			resumeData: { approved: true },
+			suspend: async (): Promise<never> => await Promise.reject(new Error('unexpected suspend')),
+		});
+
+		expect(resumedResult).toEqual({
+			success: true,
+			workflowId: 'current-workflow-id',
+		});
+
+		const followUpInput = { action: 'get', workflowId: 'recorded-workflow-id' };
+		await executeTool(wrappedTool, followUpInput);
+
+		expect(followUpInput).toEqual({ action: 'get', workflowId: 'current-workflow-id' });
+		expect(toolCalls).toEqual([
+			{ action: 'create', name: 'Recorded workflow' },
+			{ action: 'get', workflowId: 'current-workflow-id' },
+		]);
+	});
+
 	it('records tool builders once the agent builds them', async () => {
 		const writer = new TraceWriter('record-built-tool');
 		const tracing = createTraceReplayOnlyContext();

@@ -1249,7 +1249,12 @@ function replayWrapTool(
 	return {
 		...tool,
 		handler: async (input, context) => {
-			const event = traceIndex.nextMatching(agentRole, tool.name);
+			const shouldReplayRecordedSuspend =
+				isInterruptibleToolContext(context) &&
+				(context.resumeData === undefined || context.resumeData === null);
+			const event = traceIndex.nextMatchingForReplay(agentRole, tool.name, {
+				preferSuspend: shouldReplayRecordedSuspend,
+			});
 			const remappedInput: unknown = idRemapper.remapInput(input);
 			syncRemappedRecordInput(input, remappedInput);
 			if (event?.kind === 'tool-suspend') {
