@@ -32,10 +32,6 @@ jest.mock('../nodes.tool', () => ({
 	})),
 }));
 
-jest.mock('../orchestration/browser-credential-setup.tool', () => ({
-	createBrowserCredentialSetupTool: jest.fn(() => ({ id: 'browser-credential-setup' })),
-}));
-
 jest.mock('../orchestration/complete-checkpoint.tool', () => ({
 	createCompleteCheckpointTool: jest.fn(() => ({ id: 'complete-checkpoint' })),
 }));

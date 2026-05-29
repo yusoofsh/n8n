@@ -342,8 +342,8 @@ describe('useResourceRegistry', () => {
 						children: [
 							makeAgentNode({
 								agentId: 'agent-setup-1',
-								role: 'browser-credential-setup',
-								kind: 'browser-setup',
+								role: 'workflow-builder',
+								kind: 'builder',
 								status: 'active',
 								targetResource: { type: 'workflow', id: 'wf-edit', name: 'Existing WF' },
 							}),
@@ -367,8 +367,8 @@ describe('useResourceRegistry', () => {
 						children: [
 							makeAgentNode({
 								agentId: 'agent-setup-1',
-								role: 'browser-credential-setup',
-								kind: 'browser-setup',
+								role: 'workflow-builder',
+								kind: 'builder',
 								status: 'active',
 								targetResource: { type: 'workflow' },
 							}),
@@ -390,8 +390,8 @@ describe('useResourceRegistry', () => {
 						children: [
 							makeAgentNode({
 								agentId: 'agent-cred-1',
-								role: 'browser-credential-setup',
-								kind: 'browser-setup',
+								role: 'credential-setup',
+								kind: 'delegate',
 								status: 'active',
 								targetResource: { type: 'credential', id: 'cred-1' },
 							}),
@@ -413,8 +413,8 @@ describe('useResourceRegistry', () => {
 						children: [
 							makeAgentNode({
 								agentId: 'agent-setup-1',
-								role: 'browser-credential-setup',
-								kind: 'browser-setup',
+								role: 'workflow-builder',
+								kind: 'builder',
 								status: 'active',
 								targetResource: { type: 'workflow', id: 'wf-edit' },
 							}),
@@ -436,8 +436,8 @@ describe('useResourceRegistry', () => {
 						children: [
 							makeAgentNode({
 								agentId: 'agent-setup-1',
-								role: 'browser-credential-setup',
-								kind: 'browser-setup',
+								role: 'workflow-builder',
+								kind: 'builder',
 								status: 'completed',
 								targetResource: { type: 'workflow', id: 'wf-edit' },
 								toolCalls: [

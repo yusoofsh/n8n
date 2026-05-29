@@ -21,7 +21,6 @@ export const ORCHESTRATION_TOOL_IDS = {
 	DELEGATE: 'delegate',
 	EVAL_SETUP_WITH_AGENT: 'eval-setup-with-agent',
 	EVAL_DATA: 'eval-data',
-	BROWSER_CREDENTIAL_SETUP: 'browser-credential-setup',
 	COMPLETE_CHECKPOINT: 'complete-checkpoint',
 	VERIFY_BUILT_WORKFLOW: 'verify-built-workflow',
 	REPORT_VERIFICATION_VERDICT: 'report-verification-verdict',

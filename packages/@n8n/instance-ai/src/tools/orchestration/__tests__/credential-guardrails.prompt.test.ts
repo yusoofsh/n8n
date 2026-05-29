@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { buildBrowserAgentPrompt } from '../browser-credential-setup.prompt';
 import { PLANNER_AGENT_PROMPT } from '../plan-agent-prompt';
 
 const WORKFLOW_BUILDER_SKILL = readFileSync(
@@ -41,15 +40,6 @@ describe('credential guardrail prompts', () => {
 	it('does not frame API keys as acceptable ask-user inputs in the workflow-builder skill', () => {
 		expect(WORKFLOW_BUILDER_SKILL).not.toContain('a chat ID, API key, external resource name');
 		expect(WORKFLOW_BUILDER_SKILL).toContain('Never invent credential IDs, API tokens');
-	});
-
-	it('directs browser credential setup toward private credential entry', () => {
-		const prompt = buildBrowserAgentPrompt('gateway');
-
-		expect(prompt).toContain('enter the required values in the dedicated n8n credential form');
-		expect(prompt).toContain('Never ask the user to paste secret values into chat');
-		expect(prompt).not.toContain('ready to copy');
-		expect(prompt).not.toContain('copied and ready to paste into n8n');
 	});
 
 	it('keeps inbound trigger authentication disabled unless explicitly requested', () => {

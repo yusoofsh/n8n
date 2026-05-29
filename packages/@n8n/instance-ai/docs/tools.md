@@ -168,22 +168,9 @@ Atomically apply real credentials to previously-mocked workflow nodes.
 
 **Returns**: `{ updatedNodes: string[] }`
 
-### `browser-credential-setup` *(conditional)*
-
-Spawn a sub-agent with Chrome DevTools MCP for OAuth credential setup via
-browser automation. Only available when browser MCP or gateway browser tools
-are configured.
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `credentialType` | string | yes | Credential type to set up (e.g., `notionApi`) |
-| `instructions` | string | yes | Setup instructions for the browser agent |
-
-**Returns**: `{ result: string }`
-
 ---
 
-## `workflows` Tool Actions (13–17)
+## `workflows` Tool Actions
 
 The workflow surface is one consolidated `workflows` tool with an `action`
 parameter. The full native surface has 13 core actions; the orchestrator hides
@@ -470,7 +457,7 @@ Cancel a running execution.
 
 > **Security note**: The agent never handles raw credential secrets. Credential
 > creation and secret configuration is done through the n8n frontend UI (via
-> `setup-credentials`) or browser automation (`browser-credential-setup`).
+> `setup-credentials`) or Computer Use browser credential capture.
 
 ### `list-credentials`
 
@@ -524,8 +511,9 @@ The LLM never sees secrets — the user interacts with the n8n frontend directly
 **Returns**: `{ credentialId, credentialType, needsBrowserSetup? }`
 
 **HITL**: Suspends execution and renders the credential setup UI. When
-`needsBrowserSetup=true`, the orchestrator should invoke `browser-credential-setup`
-followed by another `setup-credentials` call to finalize.
+`needsBrowserSetup=true`, the orchestrator should load the
+`credential-setup-with-computer-use` skill, use Computer Use `browser_*` tools
+directly, then call `setup-credentials` again to finalize.
 
 ### `test-credential`
 
@@ -732,7 +720,7 @@ everything; sub-agents receive only what they need.
 | Web research tools | ✅ | ✅ (via delegate) | ❌ |
 | Template / best practices | ✅ | ✅ (via delegate) | ❌ |
 | MCP tools | ✅ | ❌ | ❌ |
-| Browser MCP tools | ❌ | ❌ | ✅ (browser-credential-setup only) |
+| Computer Use browser tools | ✅ (direct, via credential skill when setting up credentials) | ❌ | ❌ |
 
 ---
 
