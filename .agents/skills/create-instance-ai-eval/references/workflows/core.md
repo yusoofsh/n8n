@@ -537,4 +537,3 @@ binary-check scored), **`eval:discovery`** (asserts first-hop tool/dispatch
 routing, no n8n server), **`eval:pairwise`** (head-to-head build comparison vs
 `ai-workflow-builder.ee`). Authoring them is out of scope here — see the README
 sections of the same names.
-

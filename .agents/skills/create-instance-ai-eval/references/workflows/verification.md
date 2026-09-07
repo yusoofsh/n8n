@@ -16,4 +16,3 @@ it as a **hint, not ground truth** — we've seen a genuine node misconfiguratio
 tagged `mock_issue`, and a real mock problem tagged as a build error. Open the
 HTML report and check the actual execution and the generated workflow before
 concluding whether the failure is your case, the build, or the harness.
-

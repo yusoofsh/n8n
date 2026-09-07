@@ -339,7 +339,7 @@ unsolicited `sticky()`, forbidden builder constructs (e.g. `.map()`), and
 repeated `.onTrue()` / `.onFalse()` overwrites on the same IF variable. Fix
 every reported error and warning before calling `build-workflow`.
 
-- Code nodes need not always be necessary. You can use other n8n nodes to do the same thing. 
+- Code nodes need not always be necessary. You can use other n8n nodes to do the same thing.
 - SDK builder code is a restricted subset of TypeScript that builds a static
   graph; it is not a Code node and does not run. Build strings with template
   literals; do runtime joining, aggregation, or transforms in a Code node or
@@ -623,4 +623,3 @@ wizard or navigate away from the AI Assistant panel. When the workflow exposes
 a Webhook, Form, or Chat Trigger, follow [Trigger URL Sharing](#trigger-url-sharing)
 and include the correct end-user URL (or in-editor chat guidance) in that
 summary.
-

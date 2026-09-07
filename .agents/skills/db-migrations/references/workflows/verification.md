@@ -80,4 +80,3 @@ describe('AddAndBackfillColumn1234567890000', () => {
 - Both SQLite and Postgres if the migration branches on DB type.
 
 ---
-

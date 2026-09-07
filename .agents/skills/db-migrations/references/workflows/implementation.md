@@ -143,4 +143,3 @@ If only Postgres needs the change, just put the file in `postgresdb/`; don't wri
 For renames, use `ALTER TABLE ... RENAME TO`. Faster, atomic, no data-loss risk.
 
 ---
-

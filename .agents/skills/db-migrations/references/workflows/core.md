@@ -562,4 +562,3 @@ pnpm db:schema:check   # verify only; what the DB Tests CI job runs
 ```
 
 The DB Tests CI job fails the PR when the committed docs don't match the migrations (each matrix leg verifies its own database). Don't hand-edit anything under `docs/generated/` — it's overwritten on every regeneration.
-
